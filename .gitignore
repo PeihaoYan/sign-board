@@ -1,0 +1,40 @@
+.secrets/
+.private-assets/
+.venv/
+.env
+data/*
+!data/.gitkeep
+__pycache__/
+.pytest_cache/
+*.pyc
+tests/.test-data/
+tests/*.png
+tests/*.html
+tests/.*.json
+tests/.*.zip
+
+# Local run artifacts and generated deliverables, listed by tools/prepare_git.py. Git reads
+# everything after a `#` on a pattern line as part of the pattern, so the reasons live here instead of
+# beside the rules:
+#   tests/.probe-data/       the database the browser test harness writes (tens of megabytes)
+#   tests/.shutdown-data/    the database the shutdown test writes
+#   tests/.shutdown-profile/ a browser profile left by the shutdown test
+#   tests/shots/             pictures the checks produce for a human to look at
+#   tests/*.log              logs from a locally started server
+#   tests/.*-profile/        browser profiles from the test harness
+#   deliverables/*           the keepsake picture and its stroke sidecar: produced from the event's
+#                            data by tools/export_wall_sheet.py, and the sidecar holds personal data
+tests/.probe-data/
+tests/.release-probe-data*/
+tests/.shutdown-data/
+tests/.shutdown-profile/
+tests/shots/
+tests/*.log
+tests/.*-profile/
+deliverables/*
+backups/
+.coverage
+htmlcov/
+# Scratch files, such as the message a commit is written from: `git add -A` picks them up before they
+# are deleted, which left one in the index once.
+*.tmp

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="Abstract dark event background">
+  <rect width="1920" height="1080" fill="#071423"/>
+  <path d="M0 760 C280 690 430 820 700 760 S1170 650 1450 750 S1740 850 1920 760" fill="none" stroke="#123a58" stroke-width="5" opacity="0.8"/>
+  <path d="M0 845 C300 735 520 900 820 820 S1300 720 1600 830 S1810 900 1920 850" fill="none" stroke="#1c6a79" stroke-width="3" opacity="0.65"/>
+  <path d="M0 930 C260 850 470 960 760 900 S1270 830 1530 930 S1780 985 1920 940" fill="none" stroke="#b18a45" stroke-width="2" opacity="0.55"/>
+  <path d="M80 1080 L420 760 M300 1080 L610 790 M1590 1080 L1830 780 M1760 1080 L1920 890" stroke="#17445f" stroke-width="2" opacity="0.72"/>
+  <path d="M0 1020 C360 975 510 1035 820 990 S1370 955 1920 1010" fill="none" stroke="#2a9aa2" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="150" cy="170" r="2" fill="#9cc9ce" opacity="0.7"/>
+  <circle cx="1780" cy="210" r="2" fill="#e1bb6d" opacity="0.7"/>
+  <circle cx="1510" cy="620" r="2" fill="#9cc9ce" opacity="0.55"/>
+</svg>

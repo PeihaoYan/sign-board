@@ -1,0 +1,848 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+XiaoWei&display=swap');
+
+:root {
+  --ink: #101d2b;
+  --ink-soft: #1a2b3c;
+  --paper: #f5f1e8;
+  --paper-deep: #e9e2d4;
+  --gold: #e6b85c;
+  --gold-soft: #f2dca0;
+  --mint: #72d5c1;
+  --coral: #f38472;
+  --white: #fffdf8;
+  --line: rgba(230, 184, 92, 0.2);
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+
+  /* The participant page's writing surface. It is dark because the ink is white: on a pale board
+     the stroke is the low-contrast element, and on the phone it should look like the wall. */
+  --board: #16283a;
+  --board-line: rgba(230, 184, 92, 0.28);
+  --board-hint: rgba(226, 235, 244, 0.45);
+
+  /* Dark-surface palette. These exist so text contrast stays readable and consistent
+     across the dark pages (monitor, admin, wall) instead of every rule inventing its
+     own near-white or near-grey. */
+  --on-dark: #f5f7fa;          /* primary text on dark panels */
+  --on-dark-soft: #cdd7e0;     /* secondary text, still clearly readable */
+  --on-dark-muted: #a7b6c3;    /* labels, timestamps, hints */
+  --panel: #17293c;            /* raised panel on the dark page background */
+  --panel-deep: #122032;       /* form controls */
+  --panel-line: rgba(167, 182, 195, 0.22);
+  --on-dark-hover: rgba(230, 184, 92, 0.1);
+  --focus: rgba(230, 184, 92, 0.55);
+
+  --font-body: 'DM Sans', 'Noto Sans SC', sans-serif;
+  --font-display: 'ZCOOL XiaoWei', 'Noto Sans SC', serif;
+
+  font-family: var(--font-body);
+  color: var(--on-dark);
+  background: var(--ink);
+  --wall-image: url('/assets/assets/background.png');
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.5; }
+a { color: inherit; }
+
+/* Visible keyboard focus everywhere; dark pages need their own accent. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Display wall: the venue image is the backdrop, signatures float above it. */
+.display-page {
+  min-height: 100vh;
+  color: var(--white);
+  background: var(--ink);
+}
+
+.wall-shell {
+  position: relative;
+  display: flex;
+  height: 100vh;
+  padding: 18px;
+  overflow: hidden;
+}
+
+/* The stage fills the screen; the QR card floats above it in the corner. */
+.wall-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background-color: var(--ink);
+  background-image: var(--wall-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.signature-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Layout slot for one signature. Intentionally invisible: no background, no border,
+   no shadow, so only the ink and the small name appear over the background image.
+
+   The sizes come from `--bubble-*`, which the wall sets from `wallLayout.metricsFor(count)`: two
+   hundred signatures on one screen need smaller bubbles than a handful do, and the placement grid
+   is computed from the same numbers, so the two must not drift apart. The fallbacks here are the
+   sizes for a small crowd. */
+.signature-layer {
+  --bubble-width: 152px;
+  --bubble-height: 118px;
+  --bubble-padding: 8px;
+  --ink-width: 136px;
+  --ink-height: 88px;
+  --name-size: 12px;
+}
+
+.signature-bubble {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--bubble-width);
+  height: var(--bubble-height);
+  padding: var(--bubble-padding);
+  background: none;
+  border: 0;
+  transform: translate(-50%, -50%);
+  animation: float-signature 9s ease-in-out infinite alternate, reveal-signature 700ms ease both;
+  will-change: transform;
+}
+
+.signature-inner {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 100%;
+  text-align: center;
+}
+
+.signature-ink {
+  display: block;
+  width: var(--ink-width);
+  height: var(--ink-height);
+}
+
+.signature-name {
+  max-width: 96%;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: var(--name-size);
+  font-weight: 600;
+  opacity: 0.92;
+  text-shadow: 0 1px 3px rgba(8, 18, 30, 0.85), 0 0 1px rgba(8, 18, 30, 0.9);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signature-name.is-anonymous { opacity: 0.7; font-weight: 500; }
+
+.wall-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  width: min(520px, 72%);
+  text-align: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.wall-empty strong {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 999px;
+  color: #f7f3ea;
+  background: rgba(16, 29, 43, 0.55);
+  font-family: 'ZCOOL XiaoWei', 'Noto Sans SC', serif;
+  font-size: clamp(22px, 2.6vw, 38px);
+  font-weight: 400;
+}
+
+/* Floating QR card: absolutely positioned so it sits above the background image. */
+.wall-aside {
+  position: absolute;
+  right: 34px;
+  bottom: 34px;
+  z-index: 6;
+  display: flex;
+  /* Set from JavaScript (`--qr-scale`, from the event setting) so the card can be enlarged for a
+     hall where people scan from a distance. The 1.0 fallback keeps a static page usable. */
+  width: calc(var(--qr-card-base, 218px) * var(--qr-scale, 1));
+  pointer-events: none;
+}
+
+.qr-card {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid rgba(230, 184, 92, 0.45);
+  border-radius: 16px;
+  background: rgba(245, 241, 232, 0.94);
+  color: var(--ink);
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(3px);
+}
+
+.qr-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 8px;
+  background: var(--white);
+}
+
+.qr-kicker {
+  margin: 12px 0 4px;
+  color: #8c6a32;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.qr-title { margin: 0; font-size: 19px; line-height: 1.25; }
+.qr-copy { margin: 6px 0 0; color: #4a5763; font-size: 12px; line-height: 1.55; }
+
+.wall-status {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 5;
+  padding: 6px 12px;
+  border: 1px solid rgba(230, 184, 92, 0.45);
+  border-radius: 999px;
+  color: var(--gold-soft);
+  background: rgba(12, 22, 34, 0.72);
+  font-size: 11px;
+  backdrop-filter: blur(2px);
+}
+
+.wall-status[data-state='paused'] { border-color: rgba(243, 132, 114, 0.55); color: #ffc0b3; }
+.wall-status[data-state='ended'],
+.wall-status[data-state='draft'] { border-color: rgba(167, 182, 195, 0.45); color: #dbe4ec; }
+
+.wall-connection {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #e7edf3;
+  background: rgba(12, 22, 34, 0.62);
+  font-size: 10px;
+  backdrop-filter: blur(2px);
+}
+
+.wall-connection::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.wall-connection.is-live { color: var(--mint); }
+
+@keyframes float-signature {
+  0% { margin-top: calc(var(--drift, 7px) * -0.6); }
+  100% { margin-top: calc(var(--drift, 7px) * 0.6); }
+}
+
+@keyframes reveal-signature {
+  from { opacity: 0; transform: translate(-50%, -42%) scale(0.7) rotate(-7deg); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+/* Mobile participant page */
+.mobile-page {
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.mobile-shell {
+  width: min(100%, 680px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 28px 22px 40px;
+}
+
+.mobile-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #8c6a32;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mobile-topline::before {
+  content: '';
+  width: 38px;
+  height: 1px;
+  background: #b18a45;
+}
+
+.mobile-head { padding: 44px 4px 25px; }
+.mobile-head h1 {
+  margin: 0;
+  font-family: 'ZCOOL XiaoWei', 'Noto Sans SC', serif;
+  font-size: clamp(34px, 9vw, 58px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+.mobile-head p { margin: 13px 0 0; color: #55636c; line-height: 1.7; }
+
+.mobile-form {
+  display: grid;
+  gap: 17px;
+}
+
+.form-section {
+  padding: 18px;
+  border: 1px solid rgba(16, 29, 43, 0.13);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.form-section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.form-section-title small { color: #6f7c84; font-size: 11px; font-weight: 400; }
+
+.canvas-wrap {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--board-line);
+  border-radius: 10px;
+  /* Dark writing surface: the ink is white, so a dark board makes it stand out on the phone the
+     same way it does on the wall, and the gold hints stay legible on it. */
+  background: var(--board);
+}
+
+#signature-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(200px, 38vh, 320px);
+  touch-action: none;
+}
+
+.canvas-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: var(--board-hint);
+  font-family: 'ZCOOL XiaoWei', 'Noto Sans SC', serif;
+  font-size: 23px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 160ms ease;
+}
+
+.canvas-hint.is-hidden { opacity: 0; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.field { display: grid; gap: 7px; }
+.field.full { grid-column: 1 / -1; }
+.field label { color: #55636c; font-size: 12px; }
+.field input, .field textarea, .field select {
+  width: 100%;
+  border: 1px solid rgba(16, 29, 43, 0.16);
+  border-radius: 8px;
+  outline: 0;
+  padding: 12px 13px;
+  color: var(--ink);
+  background: rgba(255, 253, 248, 0.94);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.field textarea { min-height: 94px; resize: vertical; }
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: #b18a45;
+  box-shadow: 0 0 0 3px rgba(230, 184, 92, 0.17);
+}
+
+.form-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.button {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-weight: 700;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.button:hover:not(:disabled) { transform: translateY(-1px); }
+.button.primary { color: var(--white); background: var(--ink); }
+.button.primary:hover:not(:disabled) { background: #17293c; }
+.button.secondary { border-color: rgba(16, 29, 43, 0.18); color: var(--ink); background: transparent; }
+.button.secondary:hover:not(:disabled) { border-color: rgba(16, 29, 43, 0.4); background: rgba(16, 29, 43, 0.05); }
+.button.danger { border-color: rgba(243, 132, 114, 0.5); color: #a64839; background: transparent; }
+.button.danger:hover:not(:disabled) { border-color: var(--coral); background: rgba(243, 132, 114, 0.12); }
+.button.gold { color: var(--ink); background: var(--gold); }
+.button.gold:hover:not(:disabled) { background: #efc876; }
+
+/* Buttons on dark surfaces: the light-theme secondary/danger colours above are
+   unreadable there, so they get explicit dark variants. */
+.admin-page .button.secondary,
+.monitor-page .button.secondary {
+  border-color: rgba(245, 247, 250, 0.28);
+  color: var(--on-dark);
+  background: transparent;
+}
+.admin-page .button.secondary:hover:not(:disabled),
+.monitor-page .button.secondary:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold-soft);
+  background: var(--on-dark-hover);
+}
+.admin-page .button.danger,
+.monitor-page .button.danger {
+  border-color: rgba(243, 132, 114, 0.55);
+  color: #ffb3a4;
+  background: transparent;
+}
+.admin-page .button.danger:hover:not(:disabled),
+.monitor-page .button.danger:hover:not(:disabled) {
+  border-color: var(--coral);
+  color: #ffd0c6;
+  background: rgba(243, 132, 114, 0.16);
+}
+.admin-page .button.gold,
+.monitor-page .button.gold { color: var(--ink); background: var(--gold); }
+
+.mobile-notice {
+  min-height: 22px;
+  color: #a64839;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.mobile-footer { margin: 25px 4px 0; color: #7b878e; font-size: 11px; line-height: 1.6; }
+
+.success-panel { display: none; padding: 54px 20px; text-align: center; }
+.success-panel.is-visible { display: block; }
+.success-panel h2 {
+  margin: 0;
+  font-family: 'ZCOOL XiaoWei', 'Noto Sans SC', serif;
+  font-size: 42px;
+  font-weight: 400;
+}
+.success-panel p { margin: 14px 0 26px; color: #55636c; line-height: 1.7; }
+
+/* Admin */
+.admin-page { min-height: 100vh; background: #0c1723; color: var(--on-dark); }
+.admin-shell { width: min(1280px, 100%); margin: 0 auto; padding: 26px 24px 60px; }
+.admin-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 28px; }
+.admin-header h1 { margin: 0; font-family: var(--font-display); font-size: 42px; font-weight: 400; }
+.admin-header p { margin: 7px 0 0; color: var(--on-dark-soft); font-size: 13px; }
+.admin-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
+.admin-panel { border: 1px solid var(--panel-line); border-radius: 12px; padding: 18px; background: var(--panel); }
+.admin-panel + .admin-panel { margin-top: 16px; }
+.admin-panel h2 { margin: 0 0 15px; color: var(--gold-soft); font-size: 15px; }
+.admin-fields { display: grid; gap: 12px; }
+.admin-field { display: grid; gap: 6px; }
+.admin-field label { color: var(--on-dark-muted); font-size: 11px; }
+.admin-field input, .admin-field textarea, .admin-field select {
+  width: 100%;
+  border: 1px solid var(--panel-line);
+  border-radius: 7px;
+  outline: 0;
+  padding: 10px 11px;
+  color: var(--on-dark);
+  background: var(--panel-deep);
+}
+.admin-field textarea { min-height: 84px; resize: vertical; }
+/* The QR size slider: a range input must not inherit the box styling above. */
+.admin-field input[type="range"] {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: var(--gold);
+}
+.admin-field input[type="range"]:focus { box-shadow: none; }
+.admin-field label span { color: var(--gold-soft); font-weight: 700; }
+.admin-hint { margin: 0; color: var(--on-dark-muted); font-size: 11px; line-height: 1.6; }
+.admin-field input::placeholder, .admin-field textarea::placeholder { color: rgba(167, 182, 195, 0.65); }
+.admin-field input:focus, .admin-field textarea:focus, .admin-field select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(230, 184, 92, 0.18);
+}
+.admin-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.admin-actions .button { min-height: 38px; padding: 8px 12px; font-size: 12px; }
+.admin-login { width: min(410px, 100%); margin: 12vh auto; }
+.admin-login h1 { margin-bottom: 8px; font-family: var(--font-display); font-size: 42px; font-weight: 400; }
+.admin-login p { color: var(--on-dark-soft); font-size: 13px; line-height: 1.6; }
+.admin-login form { display: grid; gap: 12px; margin-top: 24px; }
+.admin-login input {
+  width: 100%;
+  border: 1px solid var(--panel-line);
+  border-radius: 7px;
+  padding: 13px;
+  color: var(--on-dark);
+  background: var(--panel);
+  outline: 0;
+}
+.admin-login input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(230, 184, 92, 0.18); }
+.admin-notice { min-height: 20px; color: var(--coral); font-size: 12px; }
+.admin-hidden { display: none !important; }
+
+.qr-preview { display: grid; justify-items: center; gap: 10px; padding: 10px 0 4px; }
+.qr-preview img { width: 180px; height: 180px; max-width: 100%; padding: 8px; background: var(--white); border-radius: 6px; }
+.qr-preview code { max-width: 100%; overflow: hidden; color: var(--on-dark-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.qr-preview .admin-hint { text-align: center; }
+
+.table-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
+.filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-tab {
+  border: 1px solid var(--panel-line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: var(--on-dark-soft);
+  background: transparent;
+  font-size: 11px;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+}
+.filter-tab:hover { border-color: var(--gold); color: var(--gold-soft); background: var(--on-dark-hover); }
+.filter-tab.is-active { border-color: var(--gold); color: var(--ink); background: var(--gold); font-weight: 600; }
+.submission-list { display: grid; gap: 10px; }
+.submission-row { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 14px; align-items: center; border: 1px solid var(--panel-line); border-radius: 9px; padding: 10px; background: var(--panel-deep); }
+.submission-row img, .submission-preview { width: 76px; height: 56px; object-fit: contain; border-radius: 6px; }
+/* The ink is white, so previews sit on a dark surface instead of a pale one. */
+.submission-preview { background: #0a1622; border: 1px solid rgba(255, 255, 255, 0.08); }
+.submission-row img { background: var(--white); }
+.submission-info { min-width: 0; }
+.submission-info strong { display: block; overflow: hidden; color: var(--on-dark); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.submission-info span { display: block; margin-top: 3px; overflow: hidden; color: var(--on-dark-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.submission-info p { margin: 6px 0 0; overflow: hidden; color: var(--on-dark-soft); font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.submission-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.submission-actions .button { min-height: 32px; padding: 6px 9px; font-size: 11px; }
+.status-pill { display: inline-block; margin-top: 7px; border-radius: 999px; padding: 3px 7px; color: var(--gold-soft); background: rgba(230,184,92,0.16); font-size: 10px; }
+.admin-empty { padding: 42px 20px; color: var(--on-dark-soft); text-align: center; }
+
+/* On-site monitor */
+.monitor-page { min-height: 100vh; background: #0c1723; color: var(--on-dark); }
+.monitor-shell { width: min(1180px, 100%); margin: 0 auto; padding: 26px 24px 56px; }
+.monitor-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 22px; }
+.monitor-kicker { color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.monitor-header h1 { margin: 10px 0 6px; font-family: var(--font-display); font-size: 40px; font-weight: 400; }
+.monitor-header p { margin: 0; color: var(--on-dark-soft); font-size: 13px; }
+.monitor-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.monitor-actions .button { min-height: 38px; padding: 8px 13px; font-size: 12px; }
+
+.monitor-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 999px;
+  color: var(--on-dark-soft);
+  font-size: 11px;
+}
+.monitor-live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.monitor-live[data-state='live'] { border-color: rgba(114, 213, 193, 0.5); color: var(--mint); }
+.monitor-live[data-state='error'] { border-color: rgba(243, 132, 114, 0.5); color: var(--coral); }
+
+.monitor-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.monitor-card { border: 1px solid var(--panel-line); border-radius: 12px; padding: 18px; background: var(--panel); }
+.monitor-card-label { color: var(--on-dark-soft); font-size: 12px; }
+.monitor-card-value { margin: 8px 0 6px; color: var(--gold-soft); font-size: 40px; font-weight: 700; line-height: 1; }
+.monitor-card-foot { color: var(--on-dark-muted); font-size: 11px; }
+.monitor-panel { margin-top: 0; }
+.monitor-notice { min-height: 20px; margin-bottom: 10px; color: var(--mint); font-size: 12px; }
+.monitor-meta { display: flex; flex-wrap: wrap; gap: 14px; color: var(--on-dark-soft); font-size: 12px; }
+
+@media (max-width: 900px) {
+  .monitor-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .monitor-header { display: block; }
+  .monitor-actions { margin-top: 16px; }
+  .monitor-header h1 { font-size: 32px; }
+}
+
+@media (max-width: 1100px) {
+  .wall-shell { padding: 12px; }
+  .wall-aside { right: 22px; bottom: 22px; width: 176px; }
+  .qr-card { padding: 11px; }
+  .qr-card img { padding: 6px; }
+  .qr-title { font-size: 17px; }
+  .qr-copy { font-size: 11px; }
+  .admin-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .wall-aside { right: 14px; bottom: 14px; width: 152px; }
+  .qr-card { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 10px; }
+  .qr-card img { grid-row: span 3; }
+  .qr-kicker { margin: 0; }
+  .qr-title { font-size: 15px; }
+  .qr-copy { display: none; }
+}
+
+@media (max-width: 620px) {
+  /* A narrow wall gets the small sizes regardless of the crowd: the layer's variables are set by
+     JavaScript, so the overrides have to restate them. */
+  .signature-layer {
+    --bubble-width: 118px;
+    --bubble-height: 94px;
+    --bubble-padding: 6px;
+    --ink-width: 104px;
+    --ink-height: 68px;
+    --name-size: 11px;
+  }
+  .signature-image { height: 46px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .field.full { grid-column: auto; }
+  .mobile-shell { padding: 22px 16px 34px; }
+  .mobile-head { padding-top: 38px; }
+  .form-actions { align-items: stretch; flex-direction: column-reverse; }
+  .form-actions .button { width: 100%; }
+  .admin-shell { padding: 20px 14px 40px; }
+  .admin-header { display: block; }
+  .admin-header h1 { font-size: 34px; }
+  .submission-row { grid-template-columns: 58px minmax(0, 1fr); gap: 10px; }
+  .submission-row img { width: 58px; height: 48px; }
+  .submission-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+/* Landscape writing mode.
+   `landscape-mode` drives the full-screen writing layout, whether the browser rotated
+   the viewport itself (orientation lock) or the page is rotated by a CSS transform.
+   There is deliberately no `@media (orientation: landscape)` block for this: two sets of
+   rules for the same layout is how the short-landscape phone case ended up with a grid form
+   fighting the flex column, and media queries also keep matching in the CSS-rotation path,
+   where the viewport is still physically portrait. */
+/* The writing mode only turns the canvas, never the page, so no rule may rotate the shell. */
+body.landscape-mode { overflow: hidden; }
+body.landscape-mode .mobile-shell {
+  /* The exact width and height come from the visual viewport as inline styles; the shell has
+     to be a flex column so the form and the signature section can take a definite share of it.
+     `min-height: 100vh` from the base rule is overridden, because on a phone 100vh is taller
+     than what the user can see and would push the submit row off the screen. */
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  padding: 14px 16px 16px;
+  overflow: hidden;
+}
+body.landscape-mode .mobile-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 10px;
+}
+body.landscape-mode .mobile-form .form-section:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 12px;
+}
+/* Badge shown in the header while the writing mode is on. */
+body.landscape-mode .mobile-head::before {
+  content: '横屏书写模式';
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #101d2b;
+  background: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Landscape writing mode: a tall box that the participant fills sideways.
+
+   The phone stays upright; only the canvas inside the box is turned 90°. The box is given its
+   height by mobile.js (`measureLandscapeBox`), which measures what the header, the name field and
+   the submit row need, so the box takes the rest of the screen instead of guessing at a viewport
+   height. Below the box the name field and the submit button share one compact row.
+
+   There is deliberately no fullscreen and no orientation lock: rotating the page itself meant
+   fighting the browser over the viewport size on every device, while rotating the canvas content
+   cannot move anything else.
+   --------------------------------------------------------------------------- */
+.landscape-only { display: none; }
+body.landscape-mode .landscape-only { display: block; }
+body.landscape-mode .mobile-topline { display: none; }
+body.landscape-mode .mobile-head { padding: 0 2px 8px; }
+body.landscape-mode .mobile-head h1 { font-size: 20px; }
+body.landscape-mode .mobile-head p { display: none; }
+body.landscape-mode .mobile-head::before {
+  content: '横屏书写';
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #101d2b;
+  background: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+}
+body.landscape-mode .mobile-form { display: flex; flex-direction: column; gap: 8px; }
+body.landscape-mode .mobile-form > .form-section:first-child { flex: 0 0 auto; margin: 0; padding: 10px 12px; }
+/* The prompt above the canvas and the buttons below it are redundant in this mode: the box itself
+   carries the instruction, and the mode is left with the return button in the corner. */
+body.landscape-mode .mobile-form > .form-section:first-child > .form-section-title,
+body.landscape-mode .mobile-form > .form-section:first-child > .form-actions { display: none; }
+
+/* The box: tall, centred, dark like the wall, and the only thing on screen that scrolls with the
+   drawing. The padding keeps the rotated strip off the rounded corners and leaves room for the
+   guide's baseline, which is drawn from inside the strip's own edge. */
+body.landscape-mode .canvas-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  margin: 0 auto;
+  padding: 14px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--board);
+  box-shadow: inset 0 0 0 1px var(--board-line);
+}
+body.landscape-mode #signature-canvas { position: absolute; top: 14px; left: 14px; }
+body.landscape-mode .canvas-hint { display: none; }
+
+/* Writing guide inside the box: a prompt, a dashed writing line with its ends ticked, a "start here"
+   mark and a direction arrow, all turned 90° exactly like the canvas. Looking at the upright phone
+   they run down the screen; turning the phone to write puts them the right way round, which is the
+   clearest possible statement of which way the writing goes.
+   The guide reads as one hierarchy rather than three equal labels: the prompt is the brightest and
+   largest, the writing line is a quiet dashed rule, and the two small marks stay dim. Each keeps its
+   own gold so the eye lands on the prompt first. */
+/* Both the size and the transform of the guide are set from mobile.js, exactly like the canvas: a
+   percentage height here would override the strip's own proportions. */
+body.landscape-mode .canvas-guide {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+body.landscape-mode .canvas-guide text {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+body.landscape-mode .canvas-guide .guide-prompt {
+  fill: #f4e2b4;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+body.landscape-mode .canvas-guide .guide-mark {
+  fill: rgba(226, 196, 134, 0.62);
+  letter-spacing: 0.08em;
+}
+body.landscape-mode .canvas-guide line {
+  stroke: rgba(230, 184, 92, 0.42);
+  stroke-width: 1.6;
+}
+body.landscape-mode .canvas-guide path {
+  stroke: rgba(230, 184, 92, 0.62);
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+body.landscape-mode .canvas-guide .guide-arrow {
+  stroke: rgba(226, 196, 134, 0.72);
+}
+body.landscape-mode .landscape-note {
+  margin: 8px 0 0;
+  color: #55636c;
+  font-size: 12px;
+  line-height: 1.6;
+}
+body.landscape-mode .landscape-note strong { color: #8c6a32; }
+
+/* The name field and the submit button in one row, so the box keeps the screen's height. */
+body.landscape-mode .form-side {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+}
+body.landscape-mode .form-side .form-section {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+body.landscape-mode .form-side .form-section-title { margin: 0; }
+body.landscape-mode .form-side .field { flex: 1 1 auto; min-width: 0; }
+body.landscape-mode .form-side .field label { display: none; }
+body.landscape-mode .form-side .form-actions { flex: 0 0 auto; flex-direction: row; }
+body.landscape-mode .form-side .button { width: auto; }
+body.landscape-mode .mobile-footer { display: none; }
+body.landscape-mode .mobile-notice:empty { display: none; }
+
+/* Only in a viewport that really is landscape, where `min-height: 100vh` on the shell is taller
+   than the screen. The extra `body` is there to outrank the grid form of the narrow-screen layout,
+   which otherwise wins on specificity. */
+@media (orientation: landscape) {
+  body .mobile-shell { min-height: 0; }
+  body:not(.landscape-mode) #landscape-toggle { display: none; }
+}
+.landscape-exit {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 40;
+  display: none;
+  padding: 8px 14px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  color: #101d2b;
+  background: var(--gold);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+body.landscape-mode .landscape-exit { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}

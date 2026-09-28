@@ -1,0 +1,5 @@
+# Direct dependency constraints verified by the current test environment.
+# Update this file deliberately and run the full test/release checks after changes.
+fastapi==0.141.1
+uvicorn==0.53.0
+qrcode==8.2

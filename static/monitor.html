@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1723">
+  <title>签名墙现场监控</title>
+  <link rel="stylesheet" href="/assets/styles.css?v=__ASSET_VERSION__">
+</head>
+<body class="monitor-page">
+  <main class="monitor-shell">
+    <header class="monitor-header">
+      <div>
+        <div class="monitor-kicker">Live monitor / 现场值班</div>
+        <h1 id="monitor-title">签名墙现场监控</h1>
+        <p id="monitor-subtitle">本页面用于查看现场状态；「清空当前页」会真实删除服务端数据。</p>
+      </div>
+      <div class="monitor-actions">
+        <span class="monitor-live" id="connection-state">连接中</span>
+        <a class="button secondary" href="/display" target="_blank" rel="noreferrer">打开大屏</a>
+        <button class="button secondary" type="button" id="refresh-now">立即刷新</button>
+        <button class="button secondary" type="button" id="download-page">下载大屏 PNG</button>
+        <a class="button secondary" id="download-archive" href="/api/monitor/events/integrity-2026/archive.zip">下载签名 ZIP</a>
+        <button class="button danger" type="button" id="clear-page">清空当前页</button>
+        <button class="button danger" type="button" id="monitor-logout">退出</button>
+      </div>
+    </header>
+
+    <section class="monitor-stats" aria-label="实时数据">
+      <article class="monitor-card">
+        <div class="monitor-card-label">累计签名</div>
+        <div class="monitor-card-value" id="stat-total">0</div>
+        <div class="monitor-card-foot" id="stat-total-foot">已通过审核并展示</div>
+      </article>
+      <article class="monitor-card">
+        <div class="monitor-card-label">最近 1 分钟</div>
+        <div class="monitor-card-value" id="stat-minute">0</div>
+        <div class="monitor-card-foot">实时提交速率</div>
+      </article>
+      <article class="monitor-card">
+        <div class="monitor-card-label">最近 10 分钟</div>
+        <div class="monitor-card-value" id="stat-ten">0</div>
+        <div class="monitor-card-foot">近期活跃度</div>
+      </article>
+      <article class="monitor-card">
+        <div class="monitor-card-label">已隐藏 / 已拒绝</div>
+        <div class="monitor-card-value" id="stat-blocked">0 / 0</div>
+        <div class="monitor-card-foot">审核动作统计</div>
+      </article>
+    </section>
+
+    <section class="admin-panel monitor-panel">
+      <div class="table-toolbar">
+        <h2 style="margin:0">本页签名（最近 15 条）</h2>
+        <div class="monitor-meta">
+          <span id="event-state">活动状态：—</span>
+          <span id="last-submission">最近提交：—</span>
+          <span id="server-time">服务器时间：—</span>
+        </div>
+      </div>
+      <div class="monitor-notice" id="monitor-notice" role="status" aria-live="polite"></div>
+      <div class="submission-list" id="monitor-list"></div>
+    </section>
+  </main>
+  <script src="/assets/signature.js?v=__ASSET_VERSION__" defer></script>
+  <script src="/assets/wallLayout.js?v=__ASSET_VERSION__" defer></script>
+  <script src="/assets/wallSync.js?v=__ASSET_VERSION__" defer></script>
+  <script src="/assets/wallExport.js?v=__ASSET_VERSION__" defer></script>
+  <script src="/assets/monitor.js?v=__ASSET_VERSION__" defer></script>
+</body>
+</html>

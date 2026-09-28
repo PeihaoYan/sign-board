@@ -1,0 +1,31 @@
+[Unit]
+Description=Research integrity signature wall
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=signboard
+Group=signboard
+WorkingDirectory=/opt/sign-board
+EnvironmentFile=/opt/sign-board/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=LC_ALL=C.UTF-8
+Environment=LANG=C.UTF-8
+ExecStart=/opt/sign-board/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=always
+RestartSec=3
+# systemd defaults the soft limit to 1024, which a burst of concurrent participants
+# exhausts: SQLite then reports "unable to open database file" and requests hang.
+LimitNOFILE=65535
+# Bind the privileged port without running the service as root.
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/sign-board/data
+
+[Install]
+WantedBy=multi-user.target

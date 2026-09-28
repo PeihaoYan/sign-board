@@ -1,0 +1,9 @@
+.git
+.gitignore
+.secrets
+.venv
+.env
+data
+tests
+deploy
+*.md

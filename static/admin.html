@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1723">
+  <title>签名墙管理后台</title>
+  <link rel="stylesheet" href="/assets/styles.css?v=__ASSET_VERSION__">
+</head>
+<body class="admin-page">
+  <section class="admin-login admin-panel" id="login-panel">
+    <h1>签名墙后台</h1>
+    <p>用于活动配置、内容审核和数据导出。管理员凭据仅保存在当前浏览器。</p>
+    <form id="login-form">
+      <label class="sr-only" for="admin-token">管理员凭据</label>
+      <input id="admin-token" type="password" autocomplete="current-password" placeholder="输入管理员凭据">
+      <button class="button gold" type="submit">进入管理后台</button>
+      <div class="admin-notice" id="login-notice" role="alert"></div>
+    </form>
+  </section>
+
+  <main class="admin-shell admin-hidden" id="admin-shell">
+    <header class="admin-header">
+      <div>
+        <h1>签名墙后台</h1>
+        <p id="admin-event-label">科研诚信研讨会</p>
+      </div>
+      <div class="admin-actions">
+        <a class="button secondary" href="/display" target="_blank" rel="noreferrer">打开大屏</a>
+        <a class="button secondary" id="open-mobile" href="/mobile" target="_blank" rel="noreferrer">打开手机页</a>
+        <a class="button secondary" id="open-monitor" href="/monitor" target="_blank" rel="noreferrer">现场监控</a>
+        <button class="button secondary" id="copy-monitor-link" type="button">复制监控链接</button>
+        <button class="button danger" id="logout-button" type="button">退出</button>
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <aside>
+        <section class="admin-panel">
+          <h2>活动配置</h2>
+          <form class="admin-fields" id="event-form">
+            <div class="admin-field"><label for="event-title-input">活动标题</label><input id="event-title-input" maxlength="80"></div>
+            <div class="admin-field"><label for="event-subtitle-input">副标题</label><input id="event-subtitle-input" maxlength="160"></div>
+            <div class="admin-field"><label for="event-org-input">主办方</label><input id="event-org-input" maxlength="120"></div>
+            <div class="admin-field"><label for="event-welcome-input">大屏欢迎语</label><textarea id="event-welcome-input" maxlength="220"></textarea></div>
+            <div class="admin-field"><label for="event-status-input">活动状态</label><select id="event-status-input"><option value="draft">未开始</option><option value="live">现场开放</option><option value="paused">暂时暂停</option><option value="ended">已结束</option></select></div>
+            <div class="admin-field"><label for="display-limit-input">同时展示数量（最多 500）</label><input id="display-limit-input" type="number" min="12" max="500" step="1"></div>
+            <div class="admin-field">
+              <label for="qr-scale-input">二维码大小 <span id="qr-scale-value">1.0×</span></label>
+              <input id="qr-scale-input" type="range" min="0.5" max="3" step="0.05" value="1">
+              <p class="admin-hint">大屏上二维码卡片的缩放倍数。会场大、座位离屏远时调大（建议 1.5–2.5×）；调到 3× 会占屏宽三分之一，签名可用空间明显变少。修改后大屏会立即重新排版。</p>
+            </div>
+            <button class="button gold" type="submit">保存活动设置</button>
+            <div class="admin-notice" id="event-notice" role="status"></div>
+          </form>
+        </section>
+
+        <section class="admin-panel">
+          <h2>扫码入口</h2>
+          <div class="qr-preview">
+            <img id="admin-qr" alt="活动二维码">
+            <code id="mobile-url"></code>
+            <p class="admin-hint" id="qr-preview-note">预览按大屏上的缩放倍数显示，仅作大小参考。</p>
+          </div>
+          <div class="admin-actions">
+            <a class="button secondary" id="download-csv" download>下载 CSV</a>
+            <a class="button secondary" id="download-zip" download>下载 ZIP</a>
+          </div>
+        </section>
+      </aside>
+
+      <section class="admin-panel">
+        <div class="table-toolbar">
+          <h2 style="margin:0">签名内容</h2>
+          <div class="filter-tabs" id="filter-tabs">
+            <button class="filter-tab is-active" data-status="all" type="button">全部</button>
+            <button class="filter-tab" data-status="approved" type="button">已展示</button>
+            <button class="filter-tab" data-status="hidden" type="button">已隐藏</button>
+            <button class="filter-tab" data-status="rejected" type="button">已拒绝</button>
+          </div>
+        </div>
+        <div class="submission-list" id="submission-list"></div>
+      </section>
+    </div>
+  </main>
+  <script src="/assets/signature.js?v=__ASSET_VERSION__" defer></script>
+  <script src="/assets/admin.js?v=__ASSET_VERSION__" defer></script>
+</body>
+</html>

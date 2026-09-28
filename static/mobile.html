@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f1e8">
+  <title>加入科研诚信签名墙</title>
+  <link rel="stylesheet" href="/assets/styles.css?v=__ASSET_VERSION__">
+</head>
+<body class="mobile-page">
+  <main class="mobile-shell">
+    <div class="mobile-topline">Research integrity / 共同承诺</div>
+    <header class="mobile-head">
+      <h1 id="mobile-title">加入签名墙</h1>
+      <p id="mobile-subtitle">留下您的签名，让科研诚信在现场被看见。</p>
+    </header>
+
+    <form class="mobile-form" id="submission-form">
+      <section class="form-section">
+        <div class="form-section-title">
+          <span>手写签名</span>
+          <small id="orientation-hint">可点「横屏书写」把画板转为横排</small>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="signature-canvas" aria-label="手写签名区域"></canvas>
+          <div class="canvas-hint" id="canvas-hint">写下您的名字</div>
+          <!-- The landscape writing guide. Its contents are built by mobile.js, in the strip's own
+               coordinate space: the strip is a different shape on every screen, so a fixed viewBox
+               would clip the prompt on one phone and leave it lost in the middle on the next. Only
+               shown in landscape writing mode. -->
+          <svg class="canvas-guide landscape-only" aria-hidden="true" focusable="false"></svg>
+        </div>
+        <div class="form-actions" style="margin-top: 12px">
+          <button class="button secondary" type="button" id="clear-signature">重写</button>
+          <button class="button secondary" type="button" id="landscape-toggle">横屏书写</button>
+        </div>
+      </section>
+
+      <div class="form-side">
+        <section class="form-section">
+          <div class="form-section-title">
+            <span>署名</span>
+            <small>必填，将显示在大屏签名下方</small>
+          </div>
+          <div class="field">
+            <label for="name">姓名</label>
+            <input id="name" name="name" maxlength="60" autocomplete="name" placeholder="您的姓名" required>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <span class="mobile-footer">提交即表示您同意将本次签名用于研讨会现场展示。</span>
+          <button class="button primary" id="submit-button" type="submit">提交到签名墙</button>
+        </div>
+      </div>
+
+      <div class="mobile-notice" id="mobile-notice" role="status" aria-live="polite"></div>
+    </form>
+
+    <p class="landscape-note landscape-only">
+      <strong>横屏书写</strong>：把手机横过来即可，沿画板里的虚线从左到右写；写完点右上角「返回」。
+    </p>
+
+    <section class="success-panel" id="success-panel" aria-live="polite">
+      <h2>已加入签名墙</h2>
+      <p>感谢您的参与。您的签名正在大屏幕上与大家见面。</p>
+      <button class="button secondary" type="button" id="submit-another">再写一份</button>
+    </section>
+  </main>
+  <button class="landscape-exit" id="landscape-exit" type="button">返回</button>
+  <script src="/assets/mobile.js?v=__ASSET_VERSION__" defer></script>
+</body>
+</html>
