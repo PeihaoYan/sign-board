@@ -14,6 +14,7 @@
 | Python/JavaScript 语法 | `compileall` 和 Node `--check` 通过 |
 | 依赖一致性 | `pip check` 通过 |
 | Compose/CI 配置 | YAML 解析通过 |
+| GitHub Actions CI | Run `36451916316`：Python 3.11/3.12、公开扫描、测试和 Docker job 全部通过 |
 | 文档链接 | 20 个相对链接通过 |
 | 公开内容 | 未发现旧线上 IP、用户名、私钥文件名或开发凭据字样 |
 | Git 候选扫描 | 129 个候选文件，约 0.8 MB；无凭据、数据库、私有素材 |
