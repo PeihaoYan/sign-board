@@ -2,7 +2,7 @@
 
 ## 状态
 
-当前工作树已形成 `v1.0.0` Release Candidate，尚未创建正式 Git tag、GitHub Release 或公开提交。项目边界保持为单场活动、单进程、单 SQLite 节点。
+已建立公开 GitHub 仓库 `PeihaoYan/sign-board`。清理后的 `public-main` 已作为远端 `main` 推送，首个公开提交为 `82eb11e`，并已创建远端 `v1.0.0` annotated tag。GitHub Release 页面对象尚未单独创建。项目边界保持为单场活动、单进程、单 SQLite 节点。
 
 本报告记录的是当前工作树和本机验证结果，不代表真实会场、生产服务器或公网网络已经通过。
 
@@ -14,9 +14,9 @@
 | Python/JavaScript 语法 | `compileall` 和 Node `--check` 通过 |
 | 依赖一致性 | `pip check` 通过 |
 | Compose/CI 配置 | YAML 解析通过 |
-| 文档链接 | 19 个相对链接通过 |
+| 文档链接 | 20 个相对链接通过 |
 | 公开内容 | 未发现旧线上 IP、用户名、私钥文件名或开发凭据字样 |
-| Git 候选扫描 | 128 个候选文件，约 0.8 MB；无凭据、数据库、私有素材 |
+| Git 候选扫描 | 129 个候选文件，约 0.8 MB；无凭据、数据库、私有素材 |
 | 默认背景 | 1920×1080；亮度超过白色笔迹风险阈值的像素为 0% |
 | Docker 镜像 | 构建成功；镜像 ID `sha256:bd1a075784d4d94ea1f156cbb776225fdb69a2b30a416a1e32f24ba77704d45a` |
 | Docker 安全默认 | UID `10001` 非 root，健康检查为 `healthy` |
@@ -42,8 +42,7 @@
 - 真实设备上的横屏书写和浏览器兼容性；
 - 生产 SQLite 备份恢复和上一版本回滚；
 - 完整 Git 历史密钥扫描。当前环境没有安装 `gitleaks`；针对旧 IP、私钥文件名和开发默认值的定向扫描已经完成；
-- 从清理工作树建立 `public-main` 并创建 `v1.0.0` annotated tag；
-- 配置正确的 GitHub `origin` 并推送分支和 tag。
+- 创建 GitHub Release 页面对象并附带现场验收状态；
 
 ## 发布入口
 
