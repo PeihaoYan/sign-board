@@ -2,7 +2,7 @@
 
 ## 状态
 
-已建立公开 GitHub 仓库 `PeihaoYan/sign-board`。清理后的 `public-main` 已作为远端 `main` 推送，首个公开提交为 `82eb11e`，并已创建远端 `v1.0.0` annotated tag。GitHub Release 页面对象尚未单独创建。项目边界保持为单场活动、单进程、单 SQLite 节点。
+已建立公开 GitHub 仓库 `PeihaoYan/sign-board`。清理后的 `public-main` 已作为远端 `main` 推送，首个公开提交为 `82eb11e`，并已创建远端 `v1.0.0` annotated tag。GitHub 已创建 `v1.0.0 Release Candidate` 草稿，尚未正式发布。项目边界保持为单场活动、单进程、单 SQLite 节点。
 
 本报告记录的是当前工作树和本机验证结果，不代表真实会场、生产服务器或公网网络已经通过。
 
