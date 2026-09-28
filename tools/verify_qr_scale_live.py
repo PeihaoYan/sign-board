@@ -58,7 +58,8 @@ def main() -> int:
     for marker in ('id="qr-scale-input"', 'id="qr-scale-value"', "二维码大小"):
         if marker not in admin_page:
             failures.append(f"the admin page is missing {marker}")
-    print(f"admin page: {'has' if 'id=\"qr-scale-input\"' in admin_page else 'MISSING'} the QR size control")
+    qr_control = 'has' if 'id="qr-scale-input"' in admin_page else 'MISSING'
+    print(f"admin page: {qr_control} the QR size control")
 
     # Round-trip: save a size, read it back from the public payload, then restore.
     token = admin_token()
